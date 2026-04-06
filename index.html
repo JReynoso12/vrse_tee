@@ -38,553 +38,638 @@ tailwind.config = {
 html { overflow:hidden; }
 body { background:var(--ink); color:var(--white); cursor:none; font-family:'Syne',sans-serif; overflow:hidden; }
 
-/* ── CURSOR ── */
-#cursor { width:10px; height:10px; background:var(--acid); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; mix-blend-mode:difference; transition:width .2s,height .2s; }
-#cursor-ring { width:44px; height:44px; border:1px solid rgba(212,245,60,.35); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transition:border-color .25s; }
-#cursor-label { position:fixed; top:0; left:0; pointer-events:none; z-index:9997; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--acid); opacity:0; transition:opacity .2s; white-space:nowrap; }
-body.hovering #cursor { width:16px; height:16px; }
-body.hovering #cursor-ring { width:60px; height:60px; border-color:rgba(212,245,60,.7); }
-body.hovering #cursor-label { opacity:1; }
+/* ── PRELOADER ── */
+#preloader {
+  position:fixed; inset:0; z-index:10000;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--ink); overflow:hidden;
+}
+#pl-count {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(80px,14vw,200px);
+  color:var(--white); letter-spacing:-2px; line-height:1;
+  position:relative; z-index:2; user-select:none;
+}
+#pl-bar { position:absolute; bottom:0; left:0; height:2px; background:var(--acid); width:0%; z-index:2; }
+.pl-panel { position:absolute; top:0; height:100%; width:50%; background:var(--ink); z-index:3; }
+#pl-l { left:0; transform-origin:top; }
+#pl-r { right:0; transform-origin:bottom; }
+#pl-label { position:absolute; bottom:40px; left:48px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:rgba(242,240,236,.2); z-index:2; }
 
-/* ── SCROLL CONTAINER ── */
-[data-scroll-container] { will-change:transform; }
+/* ── CURSOR ── */
+#cur {
+  width:10px; height:10px; background:var(--acid); border-radius:50%;
+  position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+  mix-blend-mode:difference;
+  transition:width .28s cubic-bezier(.25,.46,.45,.94), height .28s cubic-bezier(.25,.46,.45,.94),
+             border-radius .28s, background .28s, mix-blend-mode .28s;
+}
+#cur-ring {
+  width:42px; height:42px; border:1px solid rgba(212,245,60,.28); border-radius:50%;
+  position:fixed; top:0; left:0; pointer-events:none; z-index:9998;
+  transition:border-color .3s, width .3s, height .3s, opacity .3s;
+}
+#cur-lbl {
+  position:fixed; top:0; left:0; pointer-events:none; z-index:9997;
+  font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
+  color:var(--acid); opacity:0; transition:opacity .2s; white-space:nowrap;
+}
+body.c-hover #cur {
+  width:56px; height:56px; background:transparent;
+  mix-blend-mode:normal; border:1px solid rgba(212,245,60,.55);
+}
+body.c-hover #cur-ring { opacity:0; }
+body.c-hover #cur-lbl  { opacity:1; }
+body.c-drag  #cur { width:68px; height:68px; background:rgba(212,245,60,.08); mix-blend-mode:normal; }
 
 /* ── PROGRESS ── */
-#progress { position:fixed; top:0; left:0; height:2px; background:var(--acid); z-index:8000; width:0%; transition:width .1s linear; }
+#progress { position:fixed; top:0; left:0; height:2px; background:var(--acid); z-index:8000; width:0%; transition:width .08s linear; }
 
-/* ── CANVAS ── */
-#three-canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+/* ── BG CANVAS ── */
+#bg-canvas { position:fixed; inset:0; pointer-events:none; z-index:0; }
 
 /* ── NAV ── */
-#navbar { position:fixed; top:0; left:0; right:0; z-index:500; transition:all .4s ease; }
-#navbar.scrolled { background:rgba(5,5,5,.9); backdrop-filter:blur(20px); border-bottom:1px solid rgba(242,240,236,.05); }
+#nav {
+  position:fixed; top:0; left:0; right:0; z-index:600;
+  padding:28px 48px; display:flex; align-items:center; justify-content:space-between;
+  transition:all .45s ease;
+}
+#nav.scrolled {
+  background:rgba(5,5,5,.88); backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(242,240,236,.05); padding:18px 48px;
+}
 
 /* ── HERO ── */
-.hero-mask { clip-path:inset(0 0 0 0); transition:clip-path 1s ease; }
-.split-char { display:inline-block; overflow:hidden; }
-.split-inner { display:inline-block; transform:translateY(110%); }
+#hero-sec { position:relative; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; }
+.h-line { transform:translateY(112%); will-change:transform; display:block; }
 
-/* marquee */
-.marquee { display:flex; white-space:nowrap; }
-.marquee-track { display:flex; animation:marqueeAnim 10s linear infinite; }
-.marquee-track2 { display:flex; animation:marqueeAnim 10s linear infinite reverse; }
-@keyframes marqueeAnim { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+/* ── MARQUEE ── */
+.mq { display:flex; white-space:nowrap; overflow:hidden; }
+.mq-fwd { display:flex; animation:mqScroll 11s linear infinite; }
+.mq-rev { display:flex; animation:mqScroll 11s linear infinite reverse; }
+@keyframes mqScroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
-/* ── 3D SECTION ── */
-.three-section { position:relative; }
-.three-overlay { position:absolute; inset:0; pointer-events:none; }
+/* ── FEATURE CARDS (3D TILT) ── */
+.feat-card {
+  position:relative; overflow:hidden;
+  background:#111; border:1px solid rgba(255,255,255,.07); cursor:none;
+  transform-style:preserve-3d; transition:border-color .3s;
+}
+.feat-card:hover { border-color:rgba(212,245,60,.22); }
+.feat-glow {
+  position:absolute; width:240px; height:240px; border-radius:50%;
+  background:radial-gradient(circle,rgba(212,245,60,.1) 0%,transparent 68%);
+  pointer-events:none; transform:translate(-50%,-50%); opacity:0; transition:opacity .35s;
+}
+
+/* ── SHOWCASE (pinned) ── */
+#showcase { position:relative; }
+#showcase-stick { position:sticky; top:0; height:100vh; overflow:hidden; }
+#showcase-slides { display:flex; height:100%; }
+.s-slide { width:100vw; height:100vh; flex:none; display:flex; align-items:center; }
 
 /* ── PRODUCT CARDS ── */
 .prod-card { position:relative; overflow:hidden; cursor:none; }
-.prod-card .card-inner { transform:translateY(0); transition:transform .5s cubic-bezier(.25,.46,.45,.94); }
-.prod-card:hover .card-inner { transform:translateY(-6px); }
-.prod-card .quick-add { transform:translateY(100%); transition:transform .35s cubic-bezier(.25,.46,.45,.94); }
-.prod-card:hover .quick-add { transform:translateY(0); }
-.prod-img-wrap { overflow:hidden; }
-.prod-img-wrap .img-inner { transition:transform .6s cubic-bezier(.25,.46,.45,.94); }
-.prod-card:hover .img-inner { transform:scale(1.06); }
+.prod-card .p-body { transition:transform .5s cubic-bezier(.25,.46,.45,.94); }
+.prod-card:hover .p-body { transform:translateY(-8px); }
+.prod-card .p-btn { transform:translateY(112%); transition:transform .38s cubic-bezier(.25,.46,.45,.94); }
+.prod-card:hover .p-btn { transform:translateY(0); }
+.prod-img { transition:transform .65s cubic-bezier(.25,.46,.45,.94); }
+.prod-card:hover .prod-img { transform:scale(1.07); }
 
-/* cloth shapes */
-.cloth-tee { width:110px; height:130px; background:currentColor; clip-path:polygon(20% 0%,80% 0%,100% 15%,85% 15%,85% 100%,15% 100%,15% 15%,0% 15%); }
+/* ── CLOTH SHAPES ── */
+.cloth-tee    { width:110px; height:130px; background:currentColor; clip-path:polygon(20% 0%,80% 0%,100% 15%,85% 15%,85% 100%,15% 100%,15% 15%,0% 15%); }
 .cloth-hoodie { width:120px; height:145px; background:currentColor; clip-path:polygon(20% 0%,80% 0%,100% 20%,90% 20%,90% 100%,10% 100%,10% 20%,0% 20%); border-radius:0 0 6px 6px; }
 .cloth-jacket { width:130px; height:150px; background:currentColor; clip-path:polygon(0% 10%,25% 0%,40% 15%,50% 8%,60% 15%,75% 0%,100% 10%,100% 100%,0% 100%); }
-.cloth-pants { width:100px; height:150px; background:currentColor; clip-path:polygon(5% 0%,95% 0%,100% 50%,60% 50%,65% 100%,35% 100%,40% 50%,0% 50%); }
+.cloth-pants  { width:100px; height:150px; background:currentColor; clip-path:polygon(5% 0%,95% 0%,100% 50%,60% 50%,65% 100%,35% 100%,40% 50%,0% 50%); }
 
-/* ── FLOATING ELEMENTS ── */
-.float-badge { backdrop-filter:blur(12px); }
-.float-tag { animation:floatTag 4s ease-in-out infinite; }
-.float-tag:nth-child(2) { animation-delay:-2s; }
-@keyframes floatTag { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+/* ── SCROLL REVEALS ── */
+.sr   { opacity:0; transform:translateY(55px); }
+.sr.in   { opacity:1; transform:translateY(0);  transition:opacity .85s ease, transform .85s ease; }
+.srl  { opacity:0; transform:translateX(-65px); }
+.srl.in  { opacity:1; transform:translateX(0);  transition:opacity .85s ease, transform .85s ease; }
+.srr  { opacity:0; transform:translateX(65px);  }
+.srr.in  { opacity:1; transform:translateX(0);  transition:opacity .85s ease, transform .85s ease; }
+.srs  { opacity:0; transform:scale(.91); }
+.srs.in  { opacity:1; transform:scale(1);       transition:opacity .85s ease, transform .85s ease; }
+.d1{transition-delay:.10s!important} .d2{transition-delay:.20s!important}
+.d3{transition-delay:.30s!important} .d4{transition-delay:.40s!important}
+.d5{transition-delay:.50s!important}
 
-/* ── HORIZONTAL SCROLL ── */
-.horiz-track { display:flex; gap:24px; padding:0 48px; }
-.horiz-card { flex-shrink:0; width:320px; }
-
-/* ── SCROLL REVEAL ── */
-.reveal { opacity:0; transform:translateY(50px); }
-.reveal.active { opacity:1; transform:translateY(0); transition:opacity .8s ease, transform .8s ease; }
-.reveal-left { opacity:0; transform:translateX(-60px); }
-.reveal-left.active { opacity:1; transform:translateX(0); transition:opacity .8s ease, transform .8s ease; }
-.reveal-right { opacity:0; transform:translateX(60px); }
-.reveal-right.active { opacity:1; transform:translateX(0); transition:opacity .8s ease, transform .8s ease; }
-.reveal-scale { opacity:0; transform:scale(.92); }
-.reveal-scale.active { opacity:1; transform:scale(1); transition:opacity .8s ease, transform .8s ease; }
-
-/* stagger delays */
-.delay-1 { transition-delay:.1s !important; }
-.delay-2 { transition-delay:.2s !important; }
-.delay-3 { transition-delay:.3s !important; }
-.delay-4 { transition-delay:.4s !important; }
-
-/* ── NOISE ── */
+/* ── MISC ── */
 .noise::after { content:''; position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E"); opacity:.04; pointer-events:none; z-index:1; }
+.btn-skew  { clip-path:polygon(0 0,calc(100% - 12px) 0,100% 100%,12px 100%); }
+.g-top     { background:linear-gradient(to bottom, var(--ink) 0%, transparent 100%); }
+.g-bot     { background:linear-gradient(to top,    var(--ink) 0%, transparent 100%); }
+.t-box     { background:var(--ink); border:1px solid rgba(212,245,60,.12); }
+#h-scroller         { overflow-x:auto; scrollbar-width:none; }
+#h-scroller::-webkit-scrollbar { display:none; }
+.h-track   { display:flex; gap:20px; padding:0 48px; }
+.h-card    { flex:none; width:300px; }
+[data-scroll-container] { will-change:transform; }
 
-/* line clamp */
-.line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-
-/* skew button */
-.btn-skew { clip-path:polygon(0 0,calc(100% - 12px) 0,100% 100%,12px 100%); }
-
-/* ── TIMER ── */
-.timer-box { background:var(--ink); color:var(--acid); min-width:80px; }
-
-/* ── PARALLAX TEXT ── */
-.parallax-text { will-change:transform; }
-
-/* ── GRADIENT OVERLAYS ── */
-.grad-bottom { background:linear-gradient(to top, var(--ink) 0%, transparent 100%); }
-.grad-top { background:linear-gradient(to bottom, var(--ink) 0%, transparent 100%); }
+/* ── FLOAT ANIMATION ── */
+.float-anim { animation:floatY 4s ease-in-out infinite; }
+.float-anim:nth-child(2) { animation-delay:-2s; }
+@keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 </style>
 </head>
 <body>
 
-<canvas id="three-canvas"></canvas>
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
-<div id="cursor-label"></div>
+<!-- ══ PRELOADER ══ -->
+<div id="preloader">
+  <div class="pl-panel" id="pl-l"></div>
+  <div class="pl-panel" id="pl-r"></div>
+  <div id="pl-count">0</div>
+  <div id="pl-bar"></div>
+  <div id="pl-label">Loading VRSE SS26</div>
+</div>
+
+<!-- ══ CURSOR ══ -->
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<div id="cur-lbl"></div>
 <div id="progress"></div>
 
+<canvas id="bg-canvas"></canvas>
+
 <div id="app">
-  <div data-scroll-container id="scroll-container">
+<div data-scroll-container id="loco">
 
-    <!-- ══════ NAV ══════ -->
-    <nav id="navbar" class="px-10 py-7 flex items-center justify-between">
-      <a href="#" class="font-bebas text-2xl tracking-widest text-offwhite">
-        VRS<span class="text-acid">E</span>
-      </a>
-      <div class="hidden md:flex gap-8">
-        <a v-for="link in navLinks" :key="link" href="#"
-           class="font-mono text-[10px] tracking-widest uppercase text-offwhite/40 hover:text-acid transition-colors duration-200">
-          {{ link }}
-        </a>
-      </div>
-      <div class="flex items-center gap-5">
-        <button class="font-mono text-[10px] tracking-widest uppercase text-offwhite/60 relative">
-          BAG
-          <span class="absolute -top-1.5 -right-2.5 w-1.5 h-1.5 bg-acid rounded-full"></span>
-        </button>
-        <button class="btn-skew bg-acid text-ink font-syne font-bold text-[10px] tracking-widest uppercase px-6 py-2.5 hover:bg-yellow-300 transition-colors">
-          SHOP
-        </button>
-      </div>
-    </nav>
+  <!-- ══════ NAV ══════ -->
+  <nav id="nav">
+    <a href="#" class="font-bebas text-[22px] tracking-[4px] text-offwhite">VRS<span class="text-acid">E</span></a>
+    <div class="hidden md:flex gap-9">
+      <a v-for="l in navLinks" :key="l" href="#"
+         class="font-mono text-[10px] tracking-[3px] uppercase text-offwhite/35 hover:text-acid transition-colors cursor-none">{{ l }}</a>
+    </div>
+    <div class="flex items-center gap-5">
+      <button class="font-mono text-[10px] tracking-[3px] uppercase text-offwhite/55 relative cursor-none">
+        BAG <span class="absolute -top-1 -right-2.5 w-1.5 h-1.5 bg-acid rounded-full"></span>
+      </button>
+      <button class="btn-skew bg-acid text-ink font-syne font-bold text-[10px] tracking-[3px] uppercase px-6 py-2.5 hover:bg-yellow-300 transition-colors cursor-none"
+              @mouseenter="onCursorEnter('SHOP')" @mouseleave="onCursorLeave">
+        SHOP
+      </button>
+    </div>
+  </nav>
 
-    <!-- ══════ HERO ══════ -->
-    <section data-scroll-section class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden noise" id="hero-section">
+  <!-- ══════ HERO ══════ -->
+  <section data-scroll-section id="hero-sec" class="noise">
+    <!-- Parallax ghost text -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+      <span data-scroll data-scroll-speed="-4"
+            class="font-bebas text-[28vw] text-white/[0.025] whitespace-nowrap tracking-widest select-none">
+        VRSE VRSE VRSE
+      </span>
+    </div>
 
-      <!-- big BG text -->
-      <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <span data-scroll data-scroll-speed="-3"
-              class="font-bebas text-[28vw] text-offwhite/[0.03] whitespace-nowrap select-none parallax-text tracking-widest">
-          VRSE VRSE VRSE
-        </span>
-      </div>
+    <!-- Floating price tags -->
+    <div class="float-anim absolute top-[21%] left-[8%] z-10 bg-white/5 backdrop-blur-sm border border-white/10 rounded-sm px-4 py-3 opacity-0" id="ft1">
+      <p class="font-mono text-[9px] tracking-widest uppercase text-white/40">Void Oversized Tee</p>
+      <p class="font-mono text-acid text-sm mt-1">₱1,290</p>
+    </div>
+    <div class="float-anim absolute bottom-[29%] right-[8%] z-10 bg-white/5 backdrop-blur-sm border border-white/10 rounded-sm px-4 py-3 opacity-0" id="ft2">
+      <p class="font-mono text-[9px] tracking-widest uppercase text-white/40">Cargo Pants SS26</p>
+      <p class="font-mono text-acid text-sm mt-1">₱2,890</p>
+    </div>
+    <div class="float-anim absolute top-[53%] left-[5%] z-10 bg-acid/10 backdrop-blur-sm border border-acid/20 rounded-sm px-4 py-3 opacity-0" id="ft3">
+      <p class="font-mono text-[9px] tracking-widest uppercase text-acid/60">Drop 003 — Live Now</p>
+      <p class="font-mono text-white text-sm mt-1">Limited Stock</p>
+    </div>
 
-      <!-- floating price tags -->
-      <div class="float-tag absolute top-[22%] left-[8%] z-10 float-badge bg-white/5 border border-white/10 rounded-sm px-4 py-3 opacity-0" id="ft1">
-        <p class="font-mono text-[9px] tracking-widest uppercase text-offwhite/50">Void Oversized Tee</p>
-        <p class="font-mono text-acid text-sm mt-1">₱1,290</p>
-      </div>
-      <div class="float-tag absolute bottom-[28%] right-[8%] z-10 float-badge bg-white/5 border border-white/10 rounded-sm px-4 py-3 opacity-0" id="ft2">
-        <p class="font-mono text-[9px] tracking-widest uppercase text-offwhite/50">Cargo Pants SS26</p>
-        <p class="font-mono text-acid text-sm mt-1">₱2,890</p>
-      </div>
-      <div class="float-tag absolute top-[55%] left-[6%] z-10 float-badge bg-acid/10 border border-acid/20 rounded-sm px-4 py-3 opacity-0" id="ft3">
-        <p class="font-mono text-[9px] tracking-widest uppercase text-acid/70">Drop 003 — Live Now</p>
-        <p class="font-mono text-offwhite text-sm mt-1">Limited Stock</p>
-      </div>
+    <!-- Eyebrow -->
+    <div class="overflow-hidden relative z-10 mb-6">
+      <p class="h-line font-mono text-[10px] tracking-[5px] uppercase text-acid">SS26 Collection — Drop 003</p>
+    </div>
 
-      <!-- eyebrow -->
-      <p class="font-mono text-[10px] tracking-[4px] uppercase text-acid mb-5 relative z-10 opacity-0" id="hero-eye">
-        SS26 Collection — Drop 003
+    <!-- Main title — each line inside overflow:hidden for mask reveal -->
+    <h1 class="font-bebas text-center relative z-10 leading-none" id="hero-h1">
+      <div class="overflow-hidden">
+        <div class="h-line text-[clamp(88px,13vw,170px)] text-offwhite tracking-wide">WEAR</div>
+      </div>
+      <div class="overflow-hidden">
+        <div class="h-line text-[clamp(88px,13vw,170px)] tracking-wide" style="-webkit-text-stroke:1.5px #f2f0ec;color:transparent;">THE</div>
+      </div>
+      <div class="overflow-hidden">
+        <div class="h-line text-[clamp(88px,13vw,170px)] text-acid tracking-wide">SHIFT</div>
+      </div>
+    </h1>
+
+    <p class="font-syne text-center text-sm text-offwhite/35 max-w-xs leading-relaxed mt-8 relative z-10 opacity-0" id="h-sub">
+      Clothing built for the ones who move differently.<br/>Minimal silhouettes. Maximum intention.
+    </p>
+
+    <div class="flex gap-4 mt-10 relative z-10 opacity-0" id="h-btns">
+      <button class="btn-skew bg-acid text-ink font-syne font-bold text-[11px] tracking-[3px] uppercase px-10 py-4 hover:bg-yellow-300 transition-colors cursor-none"
+              @mouseenter="onCursorEnter('SHOP')" @mouseleave="onCursorLeave">
+        SHOP THE DROP
+      </button>
+      <button class="border border-white/15 text-offwhite font-syne text-[11px] tracking-[3px] uppercase px-8 py-4 hover:border-acid hover:text-acid transition-all cursor-none"
+              @mouseenter="onCursorEnter('VIEW')" @mouseleave="onCursorLeave">
+        LOOKBOOK ↗
+      </button>
+    </div>
+
+    <div class="absolute bottom-14 left-12 flex items-center gap-3 opacity-0 z-10" id="h-hint">
+      <div class="w-8 h-px bg-white/20"></div>
+      <span class="font-mono text-[9px] tracking-[3px] uppercase text-white/25">Scroll</span>
+    </div>
+
+    <!-- Marquee strip -->
+    <div class="absolute bottom-0 left-0 right-0 bg-acid py-2.5 z-10">
+      <div class="mq">
+        <div class="mq-fwd">
+          <template v-for="i in 2" :key="i">
+            <span v-for="it in marqueeItems" :key="it+i" class="font-bebas text-sm tracking-[3px] text-ink px-8">{{ it }}</span>
+          </template>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ FEATURES ══════ -->
+  <section data-scroll-section class="py-32 px-12 relative z-10" id="feat-sec">
+    <div class="flex items-end justify-between mb-16">
+      <div class="srl" data-scroll data-scroll-class="in">
+        <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-4">Why VRSE</p>
+        <h2 class="font-bebas text-[clamp(52px,7vw,96px)] leading-none tracking-wide">
+          BUILT<br/><span class="text-acid">DIFFERENT</span>
+        </h2>
+      </div>
+      <p class="font-syne text-sm text-white/30 max-w-xs leading-relaxed text-right srr" data-scroll data-scroll-class="in">
+        Every piece in Drop 003 is designed with one purpose — to make the wearer feel like themselves, amplified.
       </p>
+    </div>
 
-      <!-- main title -->
-      <h1 class="font-bebas text-center relative z-10 leading-none tracking-wide" id="hero-title">
-        <span class="block text-[clamp(80px,14vw,180px)] text-offwhite overflow-hidden">
-          <span class="split-inner" id="s1">WEAR</span>
-        </span>
-        <span class="block text-[clamp(80px,14vw,180px)] overflow-hidden" style="-webkit-text-stroke:1.5px #f2f0ec;color:transparent;">
-          <span class="split-inner" id="s2">THE</span>
-        </span>
-        <span class="block text-[clamp(80px,14vw,180px)] text-acid overflow-hidden">
-          <span class="split-inner" id="s3">SHIFT</span>
-        </span>
-      </h1>
+    <!-- 3D Tilt Cards -->
+    <div class="grid grid-cols-3 gap-3">
+      <div v-for="(f,i) in features" :key="f.title"
+           :class="['feat-card p-8 sr d'+(i%3+1)]"
+           data-scroll data-scroll-class="in"
+           @mouseenter="onCursorEnter('0'+String(i+1))" @mouseleave="onCursorLeave">
+        <div class="feat-glow"></div>
+        <div class="relative z-10">
+          <p class="font-mono text-[9px] tracking-[3px] uppercase text-acid/45 mb-5">0{{ i+1 }}</p>
+          <h3 class="font-bebas text-[28px] tracking-wide mb-3 text-offwhite">{{ f.title }}</h3>
+          <p class="font-syne text-xs text-white/28 leading-relaxed">{{ f.desc }}</p>
+        </div>
+        <div class="absolute bottom-5 right-5 font-mono text-[9px] tracking-widest text-acid/20">→</div>
+      </div>
+    </div>
 
-      <p class="font-syne text-center text-sm text-offwhite/40 max-w-sm leading-relaxed mt-8 relative z-10 opacity-0" id="hero-sub">
-        Clothing built for the ones who move differently.<br/>Minimal silhouettes. Maximum intention.
+    <!-- Stats row -->
+    <div class="grid grid-cols-4 gap-px mt-3">
+      <div v-for="(s,i) in stats" :key="s.label"
+           :class="['bg-dim border border-white/5 px-8 py-10 sr d'+(i+1)]"
+           data-scroll data-scroll-class="in">
+        <p class="font-bebas text-[clamp(44px,5vw,68px)] text-offwhite leading-none">{{ s.display }}</p>
+        <p class="font-mono text-[9px] tracking-[3px] uppercase text-white/25 mt-2">{{ s.label }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ PINNED SHOWCASE ══════ -->
+  <section data-scroll-section id="showcase">
+    <div id="showcase-stick">
+      <div class="absolute g-top pointer-events-none z-10" style="inset:0;height:140px;"></div>
+      <div class="absolute g-bot pointer-events-none z-10" style="bottom:0;left:0;right:0;height:180px;"></div>
+
+      <div id="showcase-slides">
+        <div v-for="(sl,i) in slides" :key="sl.id" class="s-slide" :style="{background:sl.bg}">
+          <div class="w-full px-16 grid grid-cols-2 gap-16 items-center">
+            <div>
+              <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-6">
+                {{ String(i+1).padStart(2,'0') }} / {{ String(slides.length).padStart(2,'0') }}
+              </p>
+              <h2 class="font-bebas text-[clamp(60px,8vw,108px)] leading-none tracking-wide mb-6" v-html="sl.title"></h2>
+              <p class="font-syne text-sm text-white/38 leading-relaxed max-w-xs mb-8">{{ sl.desc }}</p>
+              <div class="flex items-center gap-3">
+                <span class="font-mono text-acid text-2xl">{{ sl.price }}</span>
+                <span class="font-mono text-[9px] tracking-widest uppercase text-white/20">/ piece</span>
+              </div>
+              <button class="mt-6 btn-skew bg-acid text-ink font-syne font-bold text-[10px] tracking-[2px] uppercase px-8 py-3 hover:bg-yellow-300 transition-colors cursor-none"
+                      @mouseenter="onCursorEnter('ADD')" @mouseleave="onCursorLeave">
+                SHOP NOW
+              </button>
+            </div>
+            <div class="relative flex items-center justify-center rounded-sm" style="height:460px;" :style="{background:sl.cardBg}">
+              <div :class="sl.shape" :style="{color:sl.color}" style="transform:scale(1.4)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide progress dots -->
+      <div class="absolute bottom-14 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        <div v-for="(sl,i) in slides" :key="i"
+             :class="['h-1.5 rounded-full transition-all duration-500', activeSlide===i ? 'bg-acid w-6' : 'bg-white/20 w-1.5']">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ PRODUCTS ══════ -->
+  <section data-scroll-section class="py-32 px-12 relative z-10" id="prod-sec">
+    <div class="flex items-end justify-between mb-14">
+      <div class="srl" data-scroll data-scroll-class="in">
+        <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-4">Drop 003 — SS26</p>
+        <h2 class="font-bebas text-[clamp(56px,8vw,104px)] leading-none">
+          NEW<br/><span class="text-acid">DROPS</span>
+        </h2>
+      </div>
+      <div class="srr" data-scroll data-scroll-class="in">
+        <div class="flex gap-2 mb-4 justify-end flex-wrap">
+          <button v-for="f in filters" :key="f"
+                  @click="activeFilter=f"
+                  :class="['font-syne font-medium text-[9px] tracking-[2px] uppercase px-5 py-2 border transition-all duration-200 cursor-none',
+                           activeFilter===f ? 'bg-acid border-acid text-ink' : 'border-white/10 text-white/35 hover:border-acid/50 hover:text-acid/70']">{{ f }}</button>
+        </div>
+        <p class="font-mono text-[9px] tracking-widest uppercase text-white/20 text-right">{{ filteredProds.length }} pieces</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-0.5">
+      <div v-for="(p,i) in filteredProds" :key="p.id"
+           :class="['prod-card sr d'+(i%4+1), i===0?'col-span-2 row-span-2':'']"
+           data-scroll data-scroll-class="in"
+           @mouseenter="onCursorEnter('VIEW ↗')" @mouseleave="onCursorLeave">
+        <div class="p-body bg-dim">
+          <div class="relative overflow-hidden" :style="{height: i===0?'600px':'320px'}">
+            <div class="prod-img w-full h-full flex items-center justify-center" :style="{background:p.bgColor}">
+              <div :class="p.shape" :style="{color:p.clothColor}"></div>
+            </div>
+            <span v-if="p.isNew" class="absolute top-3 left-3 bg-acid text-ink font-syne font-bold text-[8px] tracking-[2px] uppercase px-2 py-1">NEW</span>
+            <span v-if="p.soldOut" class="absolute top-3 right-3 bg-black/60 text-white/35 font-mono text-[8px] tracking-[2px] uppercase px-2 py-1 border border-white/10">SOLD OUT</span>
+            <span v-if="p.drop&&!p.isNew" class="absolute top-3 left-3 bg-acid text-ink font-syne font-bold text-[8px] tracking-[2px] uppercase px-2 py-1">DROP ★</span>
+            <div class="p-btn absolute bottom-0 left-0 right-0 px-4 pb-4">
+              <button class="w-full bg-acid text-ink font-syne font-bold text-[9px] tracking-[2px] uppercase py-3 hover:bg-yellow-300 transition-colors">
+                {{ p.soldOut ? 'NOTIFY ME' : 'QUICK ADD +' }}
+              </button>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="font-syne font-bold text-sm tracking-wide mb-1">{{ p.name }}</p>
+            <p class="font-mono text-[9px] tracking-widest uppercase text-white/35 mb-3">{{ p.sub }}</p>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-acid text-sm">{{ p.price }}</span>
+              <div class="flex gap-1.5">
+                <div v-for="sw in p.swatches" :key="sw" class="w-2.5 h-2.5 rounded-full border border-white/10" :style="{background:sw}"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ EDITORIAL HORIZONTAL ══════ -->
+  <section data-scroll-section class="py-20 relative z-10 overflow-hidden" id="edit-sec">
+    <div class="px-12 mb-10 sr" data-scroll data-scroll-class="in">
+      <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-3">SS26 Editorial</p>
+      <h2 class="font-bebas text-[clamp(48px,7vw,90px)] leading-none">FORM OVER <span class="text-acid">NOISE</span></h2>
+    </div>
+    <div id="h-scroller"
+         @mouseenter="document.body.classList.add('c-drag')"
+         @mouseleave="document.body.classList.remove('c-drag')">
+      <div class="h-track w-max pb-2">
+        <div v-for="lk in lookbook" :key="lk.id" class="h-card srs group" data-scroll data-scroll-class="in">
+          <div class="relative overflow-hidden rounded-sm" style="height:400px;" :style="{background:lk.bg}">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div :class="lk.shape" :style="{color:lk.color,transform:'rotate('+lk.rotate+')'}"
+                   class="group-hover:scale-110 transition-transform duration-500 origin-center"></div>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-5">
+              <p class="font-mono text-[8px] tracking-widest uppercase text-acid/60 mb-1">Look {{ String(lk.id).padStart(2,'0') }}</p>
+              <p class="font-bebas text-xl tracking-wide">{{ lk.name }}</p>
+              <p class="font-syne text-xs text-white/40 mt-0.5">{{ lk.price }}</p>
+            </div>
+            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span class="font-mono text-[8px] tracking-widest uppercase text-acid border border-acid/40 px-2 py-1">VIEW ↗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="px-12 mt-4 flex items-center gap-3 opacity-30">
+      <div class="w-6 h-px bg-white/40"></div>
+      <span class="font-mono text-[9px] tracking-widest uppercase text-white/40">Drag to explore</span>
+    </div>
+  </section>
+
+  <!-- ══════ MANIFESTO ══════ -->
+  <section data-scroll-section class="relative py-44 px-12 overflow-hidden z-10" id="man-sec">
+    <div class="absolute inset-0 flex flex-col justify-center pointer-events-none overflow-hidden gap-6">
+      <div data-scroll data-scroll-speed="-3"
+           class="font-bebas text-[18vw] text-white/[0.025] whitespace-nowrap leading-none">
+        WEAR THE SHIFT WEAR THE SHIFT
+      </div>
+      <div data-scroll data-scroll-speed="3"
+           class="font-bebas text-[18vw] text-white/[0.02] whitespace-nowrap leading-none text-right">
+        VRSE VRSE VRSE VRSE VRSE
+      </div>
+    </div>
+    <div class="relative z-10 max-w-3xl">
+      <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-8 sr" data-scroll data-scroll-class="in">Our ethos</p>
+      <h2 class="font-bebas text-[clamp(60px,9vw,120px)] leading-none tracking-wide mb-8 sr" data-scroll data-scroll-class="in">
+        WE DON'T<br/>
+        <span style="-webkit-text-stroke:1px #f2f0ec;color:transparent;">CHASE</span><br/>
+        <span class="text-acid">TRENDS.</span>
+      </h2>
+      <p class="font-syne text-base text-offwhite/45 leading-relaxed max-w-md mb-12 sr d2" data-scroll data-scroll-class="in">
+        We build pieces that outlast them. Every garment in Drop 003 is cut for the body that refuses to be invisible. Intention over noise. Always.
       </p>
+      <button class="sr d3 font-syne font-bold text-[11px] tracking-[3px] uppercase text-acid border border-acid/30 px-8 py-4 hover:bg-acid hover:text-ink transition-all duration-300 cursor-none"
+              data-scroll data-scroll-class="in"
+              @mouseenter="onCursorEnter('READ')" @mouseleave="onCursorLeave">
+        READ THE MANIFESTO ↗
+      </button>
+    </div>
+  </section>
 
-      <div class="flex gap-4 mt-12 relative z-10 opacity-0" id="hero-btns">
-        <button class="btn-skew bg-acid text-ink font-syne font-bold text-[11px] tracking-[3px] uppercase px-10 py-4 hover:bg-yellow-300 transition-all duration-200 hover:-translate-y-0.5">
-          SHOP THE DROP
-        </button>
-        <button class="border border-white/20 text-offwhite font-syne font-medium text-[11px] tracking-[3px] uppercase px-8 py-4 hover:border-acid hover:text-acid transition-all duration-200 hover:-translate-y-0.5">
-          LOOKBOOK ↗
-        </button>
+  <!-- ══════ COUNTDOWN ══════ -->
+  <section data-scroll-section class="bg-acid py-20 px-12 relative z-10 flex flex-wrap items-center justify-between gap-10">
+    <div class="srl" data-scroll data-scroll-class="in">
+      <p class="font-mono text-[9px] tracking-[3px] uppercase text-ink/35 mb-3">Next Drop</p>
+      <h2 class="font-bebas text-[clamp(48px,7vw,88px)] text-ink leading-none">DROP 004<br/>INCOMING</h2>
+    </div>
+    <div class="flex items-center gap-1 sr" data-scroll data-scroll-class="in">
+      <div v-for="(u,i) in timer" :key="u.label" class="flex items-center gap-1">
+        <div class="t-box text-center px-6 py-5 min-w-[80px]">
+          <span class="font-bebas text-5xl text-acid block leading-none">{{ u.value }}</span>
+          <span class="font-mono text-[7px] tracking-[2px] uppercase text-acid/35 mt-1 block">{{ u.label }}</span>
+        </div>
+        <span v-if="i<3" class="font-bebas text-4xl text-ink/25 pb-3">:</span>
       </div>
+    </div>
+    <div class="srr" data-scroll data-scroll-class="in">
+      <p class="font-syne text-sm text-ink/55 mb-4 max-w-xs">Be the first to know when Drop 004 goes live. Limited to 200 pieces worldwide.</p>
+      <button class="bg-ink text-acid font-syne font-bold text-[10px] tracking-[2px] uppercase px-8 py-4 hover:bg-dim transition-colors cursor-none"
+              @mouseenter="onCursorEnter('JOIN')" @mouseleave="onCursorLeave">
+        NOTIFY ME →
+      </button>
+    </div>
+  </section>
 
-      <!-- scroll indicator -->
-      <div class="absolute bottom-16 left-12 flex items-center gap-3 opacity-0" id="scroll-hint">
-        <div class="w-10 h-px bg-white/20"></div>
-        <span class="font-mono text-[9px] tracking-[3px] uppercase text-white/30">Scroll</span>
-      </div>
-
-      <!-- marquee bottom -->
-      <div class="absolute bottom-0 left-0 right-0 bg-acid py-2.5 overflow-hidden z-10">
-        <div class="marquee">
-          <div class="marquee-track">
-            <template v-for="i in 2" :key="i">
-              <span v-for="item in marqueeItems" :key="item+i"
-                    class="font-bebas text-sm tracking-[3px] text-ink px-8">{{ item }}</span>
-            </template>
-          </div>
+  <!-- ══════ TESTIMONIALS ══════ -->
+  <section data-scroll-section class="py-32 px-12 bg-[#080808] relative z-10">
+    <div class="text-center mb-16 sr" data-scroll data-scroll-class="in">
+      <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-4">Community</p>
+      <h2 class="font-bebas text-[clamp(52px,8vw,96px)] leading-none">
+        WORN BY THE<br/><span class="text-acid">REAL ONES</span>
+      </h2>
+    </div>
+    <div class="grid grid-cols-3 gap-0.5">
+      <div v-for="(t,i) in testimonials" :key="t.handle"
+           :class="['bg-dim p-8 border-t-2 border-transparent hover:border-acid transition-colors duration-300 cursor-none sr d'+(i+1)]"
+           data-scroll data-scroll-class="in">
+        <p class="font-mono text-[9px] tracking-widest uppercase text-acid mb-4">{{ t.handle }}</p>
+        <p class="font-syne text-sm text-offwhite/60 leading-relaxed mb-5">"{{ t.text }}"</p>
+        <div class="flex items-center justify-between">
+          <span class="font-syne font-bold text-xs">{{ t.name }}</span>
+          <span class="font-mono text-[9px] text-white/25">♥ {{ t.likes }}</span>
         </div>
       </div>
-    </section>
-
-    <!-- ══════ 3D SECTION ══════ -->
-    <section data-scroll-section class="relative min-h-screen flex items-center overflow-hidden" id="three-section">
-      <div class="absolute inset-0 grad-top pointer-events-none z-10"></div>
-
-      <div class="container mx-auto px-12 grid grid-cols-2 gap-20 items-center relative z-20">
-        <div class="reveal-left" data-scroll data-scroll-class="active">
-          <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-6">3D Preview — Rotate to Explore</p>
-          <h2 class="font-bebas text-[clamp(52px,7vw,88px)] leading-none tracking-wide mb-6">
-            TOUCH.<br/>
-            <span style="-webkit-text-stroke:1px #f2f0ec;color:transparent;">FEEL.</span><br/>
-            <span class="text-acid">WEAR.</span>
-          </h2>
-          <p class="font-syne text-sm text-offwhite/40 leading-relaxed max-w-xs mb-8">
-            Interact with our 3D product viewer. Drag to rotate. Every angle tells a different story.
-          </p>
-          <div class="flex gap-3 flex-wrap">
-            <button v-for="col in cubeColors" :key="col.name"
-                    @click="activeCubeColor = col"
-                    :class="['w-8 h-8 rounded-full border-2 transition-all duration-200 cursor-none',
-                             activeCubeColor.name===col.name ? 'border-acid scale-110' : 'border-transparent hover:border-white/40']"
-                    :style="{background: col.hex}">
-            </button>
-          </div>
-          <p class="font-mono text-[9px] tracking-widest uppercase text-offwhite/30 mt-3">{{ activeCubeColor.name }}</p>
-        </div>
-
-        <!-- 3D canvas area -->
-        <div class="reveal-right relative" data-scroll data-scroll-class="active">
-          <canvas id="cube-canvas" class="w-full" style="height:500px;border-radius:4px;"></canvas>
-          <div class="absolute bottom-6 left-6 font-mono text-[9px] tracking-widest uppercase text-white/20">
-            Drag to rotate · Scroll to zoom
-          </div>
+    </div>
+    <div class="mt-16 overflow-hidden">
+      <div class="mq">
+        <div class="mq-rev flex gap-0">
+          <template v-for="i in 2" :key="i">
+            <span v-for="it in marqueeItems2" :key="it+i"
+                  class="font-bebas text-[clamp(40px,6vw,72px)] text-white/[0.04] whitespace-nowrap px-6 leading-none">{{ it }}</span>
+          </template>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="absolute inset-0 grad-bottom pointer-events-none z-10" style="top:auto;height:200px;"></div>
-    </section>
-
-    <!-- ══════ PRODUCTS ══════ -->
-    <section data-scroll-section class="py-32 px-12" id="products-section">
-      <div class="flex items-end justify-between mb-16">
-        <div class="reveal-left" data-scroll data-scroll-class="active">
-          <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-4">Drop 003 — SS26</p>
-          <h2 class="font-bebas text-[clamp(56px,8vw,104px)] leading-none tracking-wide">
-            NEW<br/><span class="text-acid">DROPS</span>
-          </h2>
-        </div>
-        <div class="reveal-right" data-scroll data-scroll-class="active">
-          <div class="flex gap-2 flex-wrap justify-end mb-4">
-            <button v-for="f in filters" :key="f"
-                    @click="activeFilter = f"
-                    :class="['font-syne font-medium text-[9px] tracking-[2px] uppercase px-5 py-2 border transition-all duration-200 cursor-none',
-                             activeFilter===f ? 'bg-acid border-acid text-ink' : 'border-white/10 text-white/40 hover:border-acid hover:text-acid']">
-              {{ f }}
-            </button>
-          </div>
-          <p class="font-mono text-[9px] tracking-widest uppercase text-white/20 text-right">12 pieces / Limited stock</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-4 gap-0.5">
-        <div v-for="(p, i) in filteredProducts" :key="p.id"
-             :class="['prod-card reveal delay-'+(i%4+1), i===0 ? 'col-span-2 row-span-2' : '']"
-             data-scroll data-scroll-class="active"
-             @mouseenter="onProdHover(p)"
-             @mouseleave="onProdLeave">
-
-          <div class="card-inner bg-dim">
-            <!-- image area -->
-            <div class="prod-img-wrap relative" :style="{height: i===0 ? '600px' : '320px'}">
-              <div class="img-inner w-full h-full flex items-center justify-center"
-                   :style="{background: p.bgColor}">
-                <div :class="p.shape" :style="{color: p.clothColor}"></div>
-              </div>
-              <!-- badges -->
-              <span v-if="p.isNew" class="absolute top-3 left-3 bg-acid text-ink font-syne font-bold text-[8px] tracking-[2px] uppercase px-2 py-1">NEW</span>
-              <span v-if="p.soldOut" class="absolute top-3 right-3 bg-black/60 text-white/40 font-mono text-[8px] tracking-[2px] uppercase px-2 py-1 border border-white/10">SOLD OUT</span>
-              <span v-if="p.drop" class="absolute top-3 left-3 bg-acid text-ink font-syne font-bold text-[8px] tracking-[2px] uppercase px-2 py-1">DROP ★</span>
-
-              <!-- quick add -->
-              <div class="quick-add absolute bottom-0 left-0 right-0 px-4 pb-4">
-                <button class="w-full bg-acid text-ink font-syne font-bold text-[9px] tracking-[2px] uppercase py-3 hover:bg-yellow-300 transition-colors">
-                  {{ p.soldOut ? 'NOTIFY ME' : 'QUICK ADD +' }}
-                </button>
-              </div>
-            </div>
-
-            <!-- info -->
-            <div class="p-4">
-              <p class="font-syne font-bold text-sm tracking-wide mb-1">{{ p.name }}</p>
-              <p class="font-mono text-[9px] tracking-widest uppercase text-white/40 mb-3">{{ p.sub }}</p>
-              <div class="flex items-center justify-between">
-                <span class="font-mono text-acid text-sm">{{ p.price }}</span>
-                <div class="flex gap-1.5">
-                  <div v-for="sw in p.swatches" :key="sw"
-                       class="w-2.5 h-2.5 rounded-full border border-white/10"
-                       :style="{background:sw}"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════ HORIZONTAL SCROLL EDITORIAL ══════ -->
-    <section data-scroll-section class="relative py-20 overflow-hidden" id="editorial-section">
-      <div class="px-12 mb-10 reveal" data-scroll data-scroll-class="active">
-        <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-3">SS26 Editorial</p>
-        <h2 class="font-bebas text-[clamp(48px,7vw,88px)] leading-none">FORM OVER <span class="text-acid">NOISE</span></h2>
-      </div>
-
-      <!-- horizontal pinned track -->
-      <div class="overflow-x-auto pb-6" id="horiz-scroll" style="scrollbar-width:none;">
-        <div class="horiz-track w-max">
-          <div v-for="look in lookbook" :key="look.id"
-               class="horiz-card reveal-scale cursor-none group" data-scroll data-scroll-class="active">
-            <div class="relative overflow-hidden rounded-sm" style="height:420px;"
-                 :style="{background:look.bg}">
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div :class="look.shape" :style="{color:look.color,transform:'rotate('+look.rotate+')'}" style="transform-origin:center;"></div>
-              </div>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-              <div class="absolute bottom-0 left-0 right-0 p-6">
-                <p class="font-mono text-[8px] tracking-widest uppercase text-acid/70 mb-1">Look {{ look.id.toString().padStart(2,'0') }}</p>
-                <p class="font-bebas text-2xl tracking-wide">{{ look.name }}</p>
-                <p class="font-syne text-xs text-white/50 mt-1">{{ look.price }}</p>
-              </div>
-              <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span class="font-mono text-[8px] tracking-widest uppercase text-acid border border-acid/40 px-2 py-1">VIEW ↗</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- drag hint -->
-      <div class="px-12 mt-4 flex items-center gap-3 opacity-40">
-        <div class="w-8 h-px bg-white/40"></div>
-        <span class="font-mono text-[9px] tracking-widest uppercase text-white/40">Drag to explore</span>
-      </div>
-    </section>
-
-    <!-- ══════ MANIFESTO ══════ -->
-    <section data-scroll-section class="relative py-40 px-12 overflow-hidden" id="manifesto-section">
-      <!-- giant parallax bg text -->
-      <div class="absolute inset-0 flex flex-col justify-center pointer-events-none overflow-hidden gap-4">
-        <div data-scroll data-scroll-speed="-2" class="font-bebas text-[18vw] text-white/[0.03] whitespace-nowrap leading-none">
-          WEAR THE SHIFT WEAR THE SHIFT
-        </div>
-        <div data-scroll data-scroll-speed="2" class="font-bebas text-[18vw] text-white/[0.025] whitespace-nowrap leading-none text-right">
-          VRSE VRSE VRSE VRSE VRSE
-        </div>
-      </div>
-
-      <div class="relative z-10 max-w-3xl">
-        <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-8 reveal" data-scroll data-scroll-class="active">Our ethos</p>
-        <h2 class="font-bebas text-[clamp(60px,9vw,120px)] leading-none tracking-wide mb-8 reveal" data-scroll data-scroll-class="active">
-          WE DON'T<br/>
-          <span style="-webkit-text-stroke:1px #f2f0ec;color:transparent;">CHASE</span><br/>
-          <span class="text-acid">TRENDS.</span>
-        </h2>
-        <p class="font-syne text-base text-offwhite/50 leading-relaxed max-w-md mb-12 reveal delay-2" data-scroll data-scroll-class="active">
-          We build pieces that outlast them. Every garment in Drop 003 is cut for the body that refuses to be invisible. Intention over noise. Always.
-        </p>
-        <button class="reveal delay-3 font-syne font-bold text-[11px] tracking-[3px] uppercase text-acid border border-acid/30 px-8 py-4 hover:bg-acid hover:text-ink transition-all duration-300 cursor-none"
-                data-scroll data-scroll-class="active">
-          READ THE MANIFESTO ↗
+  <!-- ══════ NEWSLETTER ══════ -->
+  <section data-scroll-section class="relative py-40 px-12 overflow-hidden z-10">
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <span class="font-bebas text-[25vw] text-white/[0.018] whitespace-nowrap tracking-widest">JOIN</span>
+    </div>
+    <div class="relative z-10 max-w-xl mx-auto text-center">
+      <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-5 sr" data-scroll data-scroll-class="in">Inner Circle</p>
+      <h2 class="font-bebas text-[clamp(56px,8vw,100px)] leading-none mb-4 sr" data-scroll data-scroll-class="in">
+        GET IT<br/><span class="text-acid">BEFORE</span><br/>IT'S GONE
+      </h2>
+      <p class="font-syne text-sm text-white/30 leading-relaxed mb-10 sr d2" data-scroll data-scroll-class="in">
+        First access to drops. Members-only pricing. Behind-the-scenes from the studio.
+      </p>
+      <div class="flex border border-white/10 focus-within:border-acid transition-colors duration-300 sr d3" data-scroll data-scroll-class="in">
+        <input type="email" placeholder="your@email.com"
+               class="flex-1 bg-white/5 outline-none px-6 py-4 font-syne text-sm text-white placeholder-white/20"/>
+        <button class="bg-acid text-ink font-syne font-bold text-[10px] tracking-[2px] uppercase px-6 whitespace-nowrap hover:bg-yellow-300 transition-colors cursor-none"
+                @mouseenter="onCursorEnter('→')" @mouseleave="onCursorLeave">
+          JOIN NOW →
         </button>
       </div>
-    </section>
+      <div class="flex justify-center gap-8 mt-6 sr d4" data-scroll data-scroll-class="in">
+        <span v-for="p in nlPerks" :key="p" class="font-mono text-[8px] tracking-widest uppercase text-white/20">✦ {{ p }}</span>
+      </div>
+    </div>
+  </section>
 
-    <!-- ══════ DROP COUNTDOWN ══════ -->
-    <section data-scroll-section class="bg-acid py-20 px-12 flex flex-wrap items-center justify-between gap-10" id="timer-section">
-      <div class="reveal-left" data-scroll data-scroll-class="active">
-        <p class="font-mono text-[9px] tracking-[3px] uppercase text-ink/40 mb-3">Next Drop</p>
-        <h2 class="font-bebas text-[clamp(48px,7vw,88px)] text-ink leading-none">
-          DROP 004<br/>INCOMING
-        </h2>
+  <!-- ══════ FOOTER ══════ -->
+  <footer data-scroll-section class="bg-dim border-t border-white/5 px-12 py-12 relative z-10">
+    <div class="grid grid-cols-4 gap-10 mb-10">
+      <div>
+        <p class="font-bebas text-2xl tracking-[3px] mb-3">VRS<span class="text-acid">E</span></p>
+        <p class="font-syne text-xs text-white/25 leading-relaxed">Wear the shift.<br/>Manila-made.<br/>SS26 Drop 003 — Live now.</p>
       </div>
+      <div v-for="col in footerCols" :key="col.title">
+        <p class="font-mono text-[8px] tracking-[3px] uppercase text-white/20 mb-4">{{ col.title }}</p>
+        <a v-for="link in col.links" :key="link" href="#"
+           class="block font-syne text-xs text-white/40 mb-2.5 hover:text-acid transition-colors cursor-none">{{ link }}</a>
+      </div>
+    </div>
+    <div class="border-t border-white/5 pt-6 flex items-center justify-between">
+      <p class="font-mono text-[9px] text-white/20">© 2026 VRSE. Manila, Philippines.</p>
+      <p class="font-mono text-[9px] text-acid tracking-widest">WEAR THE SHIFT ✦</p>
+      <p class="font-mono text-[9px] text-white/20">Privacy · Terms</p>
+    </div>
+  </footer>
 
-      <div class="flex items-center gap-1 reveal" data-scroll data-scroll-class="active">
-        <div v-for="(unit,i) in timerUnits" :key="unit.label" class="flex items-center gap-1">
-          <div class="timer-box text-center px-6 py-5 min-w-[80px]">
-            <span class="font-bebas text-5xl text-acid block leading-none">{{ unit.value }}</span>
-            <span class="font-mono text-[7px] tracking-[2px] uppercase text-acid/40 mt-1 block">{{ unit.label }}</span>
-          </div>
-          <span v-if="i<3" class="font-bebas text-4xl text-ink/30 pb-3">:</span>
-        </div>
-      </div>
-
-      <div class="reveal-right" data-scroll data-scroll-class="active">
-        <p class="font-syne text-sm text-ink/60 mb-4 max-w-xs">Be the first to know when Drop 004 goes live. Limited to 200 pieces worldwide.</p>
-        <button class="bg-ink text-acid font-syne font-bold text-[10px] tracking-[2px] uppercase px-8 py-4 hover:bg-dim transition-colors cursor-none">
-          NOTIFY ME →
-        </button>
-      </div>
-    </section>
-
-    <!-- ══════ SOCIAL PROOF ══════ -->
-    <section data-scroll-section class="py-32 px-12 bg-[#080808]" id="social-section">
-      <div class="text-center mb-16 reveal" data-scroll data-scroll-class="active">
-        <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-4">Community</p>
-        <h2 class="font-bebas text-[clamp(52px,8vw,96px)] leading-none">
-          WORN BY THE<br/><span class="text-acid">REAL ONES</span>
-        </h2>
-      </div>
-
-      <div class="grid grid-cols-3 gap-0.5">
-        <div v-for="(t,i) in testimonials" :key="t.handle"
-             :class="['bg-dim p-8 border-t-2 border-transparent hover:border-acid transition-colors duration-300 cursor-none reveal delay-'+(i+1)]"
-             data-scroll data-scroll-class="active">
-          <p class="font-mono text-[9px] tracking-widest uppercase text-acid mb-4">{{ t.handle }}</p>
-          <p class="font-syne text-sm text-offwhite/65 leading-relaxed mb-5">"{{ t.text }}"</p>
-          <div class="flex items-center justify-between">
-            <span class="font-syne font-bold text-xs">{{ t.name }}</span>
-            <span class="font-mono text-[9px] text-white/30">♥ {{ t.likes }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- rolling marquee 2 -->
-      <div class="mt-16 overflow-hidden">
-        <div class="flex">
-          <div class="marquee-track2 flex gap-0">
-            <template v-for="i in 2" :key="i">
-              <span v-for="item in marqueeItems2" :key="item+i"
-                    class="font-bebas text-[clamp(40px,6vw,72px)] text-white/5 whitespace-nowrap px-6 leading-none">
-                {{ item }}
-              </span>
-            </template>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════ NEWSLETTER ══════ -->
-    <section data-scroll-section class="relative py-40 px-12 overflow-hidden" id="nl-section">
-      <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <span class="font-bebas text-[25vw] text-white/[0.02] whitespace-nowrap tracking-widest">JOIN</span>
-      </div>
-      <div class="relative z-10 max-w-xl mx-auto text-center">
-        <p class="font-mono text-[9px] tracking-[4px] uppercase text-acid mb-5 reveal" data-scroll data-scroll-class="active">Inner Circle</p>
-        <h2 class="font-bebas text-[clamp(56px,8vw,100px)] leading-none mb-4 reveal" data-scroll data-scroll-class="active">
-          GET IT<br/><span class="text-acid">BEFORE</span><br/>IT'S GONE
-        </h2>
-        <p class="font-syne text-sm text-white/35 leading-relaxed mb-10 reveal delay-2" data-scroll data-scroll-class="active">
-          First access to drops. Members-only pricing. Behind-the-scenes from the studio.
-        </p>
-        <div class="flex border border-white/10 focus-within:border-acid transition-colors duration-300 reveal delay-3" data-scroll data-scroll-class="active">
-          <input type="email" placeholder="your@email.com"
-                 class="flex-1 bg-white/5 border-none outline-none px-6 py-4 font-syne text-sm text-white placeholder-white/20"/>
-          <button class="bg-acid text-ink font-syne font-bold text-[10px] tracking-[2px] uppercase px-6 whitespace-nowrap hover:bg-yellow-300 transition-colors cursor-none">
-            JOIN NOW →
-          </button>
-        </div>
-        <div class="flex justify-center gap-8 mt-6 reveal delay-4" data-scroll data-scroll-class="active">
-          <span v-for="p in nlPerks" :key="p" class="font-mono text-[8px] tracking-widest uppercase text-white/20">✦ {{ p }}</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════ FOOTER ══════ -->
-    <footer data-scroll-section class="bg-dim border-t border-white/5 px-12 py-12">
-      <div class="grid grid-cols-4 gap-10 mb-10">
-        <div>
-          <p class="font-bebas text-2xl tracking-[3px] mb-3">VRS<span class="text-acid">E</span></p>
-          <p class="font-syne text-xs text-white/30 leading-relaxed">Wear the shift.<br/>Manila-made.<br/>SS26 Drop 003 — Live now.</p>
-        </div>
-        <div v-for="col in footerCols" :key="col.title">
-          <p class="font-mono text-[8px] tracking-[3px] uppercase text-white/25 mb-4">{{ col.title }}</p>
-          <a v-for="link in col.links" :key="link" href="#"
-             class="block font-syne text-xs text-white/50 mb-2.5 hover:text-acid transition-colors cursor-none">
-            {{ link }}
-          </a>
-        </div>
-      </div>
-      <div class="border-t border-white/5 pt-6 flex items-center justify-between">
-        <p class="font-mono text-[9px] text-white/20">© 2026 VRSE. Manila, Philippines.</p>
-        <p class="font-mono text-[9px] text-acid tracking-widest">WEAR THE SHIFT ✦</p>
-        <p class="font-mono text-[9px] text-white/20">Privacy · Terms</p>
-      </div>
-    </footer>
-
-  </div><!-- /scroll-container -->
+</div><!-- /loco -->
 </div><!-- /app -->
 
 <script>
-const { createApp, ref, computed, onMounted, watch } = Vue;
+const { createApp, ref, computed, onMounted } = Vue;
 
 createApp({
   setup() {
+
     // ── DATA ──
-    const navLinks = ['New Drops','Collection','Lookbook','Community','About'];
+    const navLinks     = ['New Drops','Collection','Lookbook','Community','About'];
     const marqueeItems = ['NEW DROP 003','✦','FREE SHIP ₱2500+','✦','LIMITED STOCK','✦','WEAR THE SHIFT','✦','SS26 NOW LIVE','✦'];
-    const marqueeItems2 = ['WEAR THE SHIFT','VRSE','FORM OVER NOISE','DROP 003','MANILA MADE','LIMITED'];
+    const marqueeItems2= ['WEAR THE SHIFT','VRSE','FORM OVER NOISE','DROP 003','MANILA MADE','LIMITED'];
 
+    const features = [
+      { title:'HEAVYWEIGHT QUALITY', desc:'400GSM fleece. Preshrunk ring-spun cotton. Garment-dyed for depth. Fabrics sourced for longevity.' },
+      { title:'INTENTIONAL DESIGN',  desc:'Every seam, every hem, every colorway — deliberate. Minimal ornamentation. Maximum impact.' },
+      { title:'LIMITED PRODUCTION',  desc:'We cap every piece. No restocks. When it\'s gone, it\'s gone. Scarcity is the point.' },
+      { title:'MANILA MADE',         desc:'Designed in BGC. Produced locally. Supporting Filipino craft at every stage of the supply chain.' },
+      { title:'UNISEX SIZING',       desc:'Bodies are bodies. Our sizing runs true-to-measurement, not gendered. Wear what fits.' },
+      { title:'DROP MODEL',          desc:'No seasons. No forecasts. Pure drops when the work is ready. Follow or miss out.' },
+    ];
+
+    const stats = [
+      { display:'03',   label:'Drops Released' },
+      { display:'2.4K', label:'Pieces Sold' },
+      { display:'12',   label:'Active Designs' },
+      { display:'100%', label:'Local Production' },
+    ];
+
+    const slides = [
+      { id:1,
+        title:'VOID<br/><span style="-webkit-text-stroke:1px #f2f0ec;color:transparent;">OVER</span><br/><span class="text-acid">SIZED</span>',
+        desc:'The silhouette that started it all. Boxy cut, drop shoulders, zero compromises.',
+        price:'₱1,290', bg:'#0d0d0d', cardBg:'#131313', shape:'cloth-tee',    color:'#1e1e1e' },
+      { id:2,
+        title:'PHANTOM<br/><span class="text-acid">HOODIE</span>',
+        desc:'400GSM midnight fleece. The kind of weight you feel the moment you put it on.',
+        price:'₱2,490', bg:'#090910', cardBg:'#0d0d1a', shape:'cloth-hoodie', color:'#2a2a4a' },
+      { id:3,
+        title:'UTILITY<br/><span style="-webkit-text-stroke:1px #f2f0ec;color:transparent;">CARGO</span><br/><span class="text-acid">PANTS</span>',
+        desc:'Relaxed tapered. Six pockets. Olive heavy-twill. Built for the city.',
+        price:'₱2,890', bg:'#0c0e09', cardBg:'#181810', shape:'cloth-pants',  color:'#4a4a2a' },
+    ];
+    const activeSlide = ref(0);
+
+    const filters      = ['All','Tops','Bottoms','Outerwear'];
     const activeFilter = ref('All');
-    const filters = ['All','Tops','Bottoms','Outerwear'];
-
-    const activeCubeColor = ref({ name:'Void Black', hex:'#111111', three:0x111111 });
-    const cubeColors = [
-      { name:'Void Black', hex:'#111111', three:0x111111 },
-      { name:'Acid Green', hex:'#d4f53c', three:0xd4f53c },
-      { name:'Stone Gray',  hex:'#8a8a8a', three:0x8a8a8a },
-      { name:'Midnight',    hex:'#2a2a4a', three:0x2a2a4a },
-      { name:'Olive',       hex:'#4a4a2a', three:0x4a4a2a },
-      { name:'Ecru',        hex:'#e8e0cc', three:0xe8e0cc },
-    ];
-
     const products = [
-      { id:1, name:'Void Oversized Tee', sub:'Black / Relaxed Fit', price:'₱1,290', bgColor:'#111', clothColor:'#1a1a1a', shape:'cloth-tee', isNew:true, soldOut:false, drop:false, category:'Tops', swatches:['#111','#8a8a8a','#e8e0cc'] },
-      { id:2, name:'Phantom Hoodie', sub:'Midnight / Heavyweight', price:'₱2,490', bgColor:'#0d0d1a', clothColor:'#2a2a4a', shape:'cloth-hoodie', isNew:true, soldOut:false, drop:false, category:'Tops', swatches:['#2a2a4a','#111'] },
-      { id:3, name:'Utility Cargo Pants', sub:'Olive / Relaxed Tapered', price:'₱2,890', bgColor:'#181810', clothColor:'#4a4a2a', shape:'cloth-pants', isNew:false, soldOut:false, drop:false, category:'Bottoms', swatches:['#4a4a2a','#111','#3a3a3a'] },
-      { id:4, name:'Archive Coach Jacket', sub:'Ash / Unisex', price:'₱3,890', bgColor:'#181818', clothColor:'#8a8a8a', shape:'cloth-jacket', isNew:false, soldOut:true, drop:false, category:'Outerwear', swatches:['#8a8a8a'] },
-      { id:5, name:'Acid Fleece Hoodie', sub:'Acid Green / Statement', price:'₱2,690', bgColor:'#0d150d', clothColor:'#d4f53c', shape:'cloth-hoodie', isNew:false, soldOut:false, drop:true, category:'Tops', swatches:['#d4f53c','#111'] },
-      { id:6, name:'Shadow Track Pants', sub:'Black / Slim Tapered', price:'₱1,990', bgColor:'#111', clothColor:'#222', shape:'cloth-pants', isNew:false, soldOut:false, drop:false, category:'Bottoms', swatches:['#111','#3a3a3a'] },
-      { id:7, name:'Grain Washed Tee', sub:'Ecru / Vintage Wash', price:'₱1,490', bgColor:'#1a1714', clothColor:'#e8e0cc', shape:'cloth-tee', isNew:true, soldOut:false, drop:false, category:'Tops', swatches:['#e8e0cc','#c8b890'] },
+      { id:1, name:'Void Oversized Tee',   sub:'Black / Relaxed Fit',        price:'₱1,290', bgColor:'#111',    clothColor:'#1a1a1a', shape:'cloth-tee',    isNew:true,  soldOut:false, drop:false, category:'Tops',      swatches:['#111','#8a8a8a','#e8e0cc'] },
+      { id:2, name:'Phantom Hoodie',        sub:'Midnight / Heavyweight',     price:'₱2,490', bgColor:'#0d0d1a', clothColor:'#2a2a4a', shape:'cloth-hoodie', isNew:true,  soldOut:false, drop:false, category:'Tops',      swatches:['#2a2a4a','#111'] },
+      { id:3, name:'Utility Cargo Pants',   sub:'Olive / Relaxed Tapered',    price:'₱2,890', bgColor:'#181810', clothColor:'#4a4a2a', shape:'cloth-pants',  isNew:false, soldOut:false, drop:false, category:'Bottoms',   swatches:['#4a4a2a','#111','#3a3a3a'] },
+      { id:4, name:'Archive Coach Jacket',  sub:'Ash / Unisex',               price:'₱3,890', bgColor:'#181818', clothColor:'#8a8a8a', shape:'cloth-jacket', isNew:false, soldOut:true,  drop:false, category:'Outerwear', swatches:['#8a8a8a'] },
+      { id:5, name:'Acid Fleece Hoodie',    sub:'Acid Green / Statement',     price:'₱2,690', bgColor:'#0d150d', clothColor:'#d4f53c', shape:'cloth-hoodie', isNew:false, soldOut:false, drop:true,  category:'Tops',      swatches:['#d4f53c','#111'] },
+      { id:6, name:'Shadow Track Pants',    sub:'Black / Slim Tapered',       price:'₱1,990', bgColor:'#111',    clothColor:'#222',    shape:'cloth-pants',  isNew:false, soldOut:false, drop:false, category:'Bottoms',   swatches:['#111','#3a3a3a'] },
+      { id:7, name:'Grain Washed Tee',      sub:'Ecru / Vintage Wash',        price:'₱1,490', bgColor:'#1a1714', clothColor:'#e8e0cc', shape:'cloth-tee',    isNew:true,  soldOut:false, drop:false, category:'Tops',      swatches:['#e8e0cc','#c8b890'] },
     ];
-
-    const filteredProducts = computed(() =>
+    const filteredProds = computed(() =>
       activeFilter.value === 'All' ? products : products.filter(p => p.category === activeFilter.value)
     );
 
     const lookbook = [
-      { id:1, name:'Void Tee — Black', price:'₱1,290', bg:'#111', color:'#1a1a1a', shape:'cloth-tee', rotate:'-5deg' },
-      { id:2, name:'Phantom Hoodie', price:'₱2,490', bg:'#0d0d1a', color:'#2a2a4a', shape:'cloth-hoodie', rotate:'3deg' },
-      { id:3, name:'Cargo Pants', price:'₱2,890', bg:'#181810', color:'#4a4a2a', shape:'cloth-pants', rotate:'-2deg' },
-      { id:4, name:'Acid Hoodie', price:'₱2,690', bg:'#0d150d', color:'#d4f53c', shape:'cloth-hoodie', rotate:'6deg' },
-      { id:5, name:'Coach Jacket', price:'₱3,890', bg:'#181818', color:'#8a8a8a', shape:'cloth-jacket', rotate:'-4deg' },
+      { id:1, name:'Void Tee — Black',  price:'₱1,290', bg:'#111',    color:'#1a1a1a', shape:'cloth-tee',    rotate:'-6deg' },
+      { id:2, name:'Phantom Hoodie',    price:'₱2,490', bg:'#0d0d1a', color:'#2a2a4a', shape:'cloth-hoodie', rotate:'4deg'  },
+      { id:3, name:'Cargo Pants',       price:'₱2,890', bg:'#181810', color:'#4a4a2a', shape:'cloth-pants',  rotate:'-3deg' },
+      { id:4, name:'Acid Hoodie',       price:'₱2,690', bg:'#0d150d', color:'#d4f53c', shape:'cloth-hoodie', rotate:'7deg'  },
+      { id:5, name:'Coach Jacket',      price:'₱3,890', bg:'#181818', color:'#8a8a8a', shape:'cloth-jacket', rotate:'-5deg' },
+      { id:6, name:'Grain Washed Tee',  price:'₱1,490', bg:'#1a1714', color:'#e8e0cc', shape:'cloth-tee',    rotate:'3deg'  },
     ];
 
     const testimonials = [
       { handle:'@mxrcellx · Manila', text:'The Phantom Hoodie is on another level. Heavyweight, fits perfect, and the colorway is chef\'s kiss.', name:'Marcel R.', likes:'2.4K' },
-      { handle:'@soft.iana · Cebu', text:'Finally a local brand that actually gets it. The Grain Washed Tee is my everyday piece. Quality is insane.', name:'Iana T.', likes:'1.8K' },
-      { handle:'@theonlyjuanko · BGC', text:'Copped the Acid Hoodie and the Cargo Pants. VRSE doesn\'t miss. Worn it three times in a week. No notes.', name:'Juan C.', likes:'3.1K' },
+      { handle:'@soft.iana · Cebu',  text:'Finally a local brand that actually gets it. The Grain Washed Tee is my everyday piece. Quality is insane.', name:'Iana T.',   likes:'1.8K' },
+      { handle:'@theonlyjuanko · BGC', text:'Copped the Acid Hoodie and the Cargo Pants. VRSE doesn\'t miss. Worn it three times in a week. No notes.', name:'Juan C.',   likes:'3.1K' },
     ];
 
-    const nlPerks = ['Early drop access','Members-only pricing','No spam, ever'];
+    const nlPerks    = ['Early drop access','Members-only pricing','No spam, ever'];
     const footerCols = [
-      { title:'Shop', links:['New Drops','Tops','Bottoms','Outerwear','Sale'] },
+      { title:'Shop',  links:['New Drops','Tops','Bottoms','Outerwear','Sale'] },
       { title:'Brand', links:['About VRSE','Lookbook','Sustainability','Stockists'] },
       { title:'Help',  links:['Sizing Guide','Shipping','Returns','FAQ','Contact'] },
     ];
@@ -594,243 +679,235 @@ createApp({
     dropTarget.setDate(dropTarget.getDate() + 3);
     dropTarget.setHours(dropTarget.getHours() + 14);
     dropTarget.setMinutes(dropTarget.getMinutes() + 22);
-
-    const timerUnits = ref([
-      { label:'Days', value:'03' },
+    const timer = ref([
+      { label:'Days',  value:'03' },
       { label:'Hours', value:'14' },
-      { label:'Mins', value:'22' },
-      { label:'Secs', value:'00' },
+      { label:'Mins',  value:'22' },
+      { label:'Secs',  value:'00' },
     ]);
-    function updateTimer() {
-      const diff = dropTarget - new Date();
-      if (diff <= 0) return;
-      timerUnits.value[0].value = String(Math.floor(diff/86400000)).padStart(2,'0');
-      timerUnits.value[1].value = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
-      timerUnits.value[2].value = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
-      timerUnits.value[3].value = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+    function tickTimer() {
+      const d = dropTarget - Date.now();
+      if (d <= 0) return;
+      timer.value[0].value = String(Math.floor(d / 86400000)).padStart(2,'0');
+      timer.value[1].value = String(Math.floor((d % 86400000) / 3600000)).padStart(2,'0');
+      timer.value[2].value = String(Math.floor((d % 3600000) / 60000)).padStart(2,'0');
+      timer.value[3].value = String(Math.floor((d % 60000) / 1000)).padStart(2,'0');
     }
 
     // ── CURSOR ──
-    let curX=0,curY=0,ringX=0,ringY=0;
+    let cx = 0, cy = 0, rx = 0, ry = 0;
     function initCursor() {
-      const cur = document.getElementById('cursor');
-      const ring = document.getElementById('cursor-ring');
-      const lbl = document.getElementById('cursor-label');
+      const blob = document.getElementById('cur');
+      const ring = document.getElementById('cur-ring');
+      const lbl  = document.getElementById('cur-lbl');
       document.addEventListener('mousemove', e => {
-        curX=e.clientX; curY=e.clientY;
-        gsap.to(cur, {x:curX-5,y:curY-5,duration:.08});
-        gsap.to(lbl, {x:curX+14,y:curY-6,duration:.08});
+        cx = e.clientX; cy = e.clientY;
+        gsap.to(blob, { x: cx - 5,  y: cy - 5,  duration: .1 });
+        gsap.to(lbl,  { x: cx + 16, y: cy - 5,  duration: .1 });
       });
-      (function loop(){
-        ringX+=(curX-ringX-22)*.1;ringY+=(curY-ringY-22)*.1;
-        ring.style.transform=`translate(${ringX}px,${ringY}px)`;
-        requestAnimationFrame(loop);
+      (function ringLoop() {
+        rx += (cx - rx - 21) * .1;
+        ry += (cy - ry - 21) * .1;
+        ring.style.transform = `translate(${rx}px,${ry}px)`;
+        requestAnimationFrame(ringLoop);
       })();
     }
-
-    // ── HOVER STATES ──
-    function onProdHover(p) {
-      document.body.classList.add('hovering');
-      document.getElementById('cursor-label').textContent = 'VIEW ↗';
+    function onCursorEnter(txt) {
+      document.body.classList.add('c-hover');
+      document.getElementById('cur-lbl').textContent = txt;
     }
-    function onProdLeave() {
-      document.body.classList.remove('hovering');
+    function onCursorLeave() {
+      document.body.classList.remove('c-hover');
     }
 
-    // ── THREE.JS CUBE ──
-    let cubeScene, cubeCam, cubeRenderer, cubeMesh, cubeAnimId;
-    let isDragging=false, prevMouse={x:0,y:0};
-
-    function initCube() {
-      const canvas = document.getElementById('cube-canvas');
-      if (!canvas) return;
-      const w = canvas.clientWidth, h = canvas.clientHeight;
-
-      cubeScene = new THREE.Scene();
-      cubeCam = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
-      cubeCam.position.set(0, 0, 3.5);
-
-      cubeRenderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
-      cubeRenderer.setSize(w, h);
-      cubeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-      // Lighting
-      const amb = new THREE.AmbientLight(0xffffff, 0.4);
-      cubeScene.add(amb);
-      const dir1 = new THREE.DirectionalLight(0xd4f53c, 1.2);
-      dir1.position.set(2, 3, 4); cubeScene.add(dir1);
-      const dir2 = new THREE.DirectionalLight(0x4466ff, 0.5);
-      dir2.position.set(-3, -2, -2); cubeScene.add(dir2);
-      const pt = new THREE.PointLight(0xffffff, 0.8, 10);
-      pt.position.set(0, 2, 2); cubeScene.add(pt);
-
-      // Geometry - beveled cloth-like shape using a TorusKnot for visual interest
-      const geo = new THREE.TorusKnotGeometry(0.8, 0.28, 128, 32);
-      const mat = new THREE.MeshStandardMaterial({
-        color: activeCubeColor.value.three,
-        metalness: 0.1,
-        roughness: 0.4,
+    // ── PRELOADER ──
+    function runPreloader() {
+      return new Promise(resolve => {
+        const numEl = document.getElementById('pl-count');
+        const bar   = document.getElementById('pl-bar');
+        let n = 0;
+        const iv = setInterval(() => {
+          n += Math.floor(Math.random() * 7) + 1;
+          if (n >= 100) { n = 100; clearInterval(iv); }
+          numEl.textContent = n;
+          bar.style.width   = n + '%';
+          if (n === 100) {
+            setTimeout(() => {
+              gsap.timeline({ onComplete: resolve })
+                .to('#pl-count', { opacity: 0, y: -60, duration: .4, ease: 'power2.in' })
+                .to('#pl-label', { opacity: 0, duration: .3 }, '<')
+                .to('#pl-l', { scaleY: 0, duration: .8, ease: 'expo.inOut' }, '-=.1')
+                .to('#pl-r', { scaleY: 0, duration: .8, ease: 'expo.inOut' }, '<.06')
+                .to('#preloader', { opacity: 0, duration: .3 }, '-=.15')
+                .set('#preloader', { display: 'none' });
+            }, 260);
+          }
+        }, 28);
       });
-      cubeMesh = new THREE.Mesh(geo, mat);
-      cubeScene.add(cubeMesh);
-
-      // Wireframe overlay
-      const wGeo = new THREE.TorusKnotGeometry(0.8, 0.28, 128, 32);
-      const wMat = new THREE.MeshBasicMaterial({ color:0xd4f53c, wireframe:true, opacity:0.06, transparent:true });
-      const wire = new THREE.Mesh(wGeo, wMat);
-      cubeScene.add(wire);
-
-      // Drag interaction
-      canvas.addEventListener('mousedown', e=>{isDragging=true;prevMouse={x:e.clientX,y:e.clientY};});
-      window.addEventListener('mouseup', ()=>isDragging=false);
-      window.addEventListener('mousemove', e=>{
-        if(!isDragging||!cubeMesh)return;
-        const dx=(e.clientX-prevMouse.x)*0.008;
-        const dy=(e.clientY-prevMouse.y)*0.008;
-        cubeMesh.rotation.y+=dx;
-        cubeMesh.rotation.x+=dy;
-        wire.rotation.y+=dx;
-        wire.rotation.x+=dy;
-        prevMouse={x:e.clientX,y:e.clientY};
-      });
-      // Scroll to zoom
-      canvas.addEventListener('wheel', e=>{
-        cubeCam.position.z=Math.max(2,Math.min(6,cubeCam.position.z+e.deltaY*0.005));
-      });
-
-      function animate() {
-        cubeAnimId = requestAnimationFrame(animate);
-        if(!isDragging&&cubeMesh){ cubeMesh.rotation.y+=0.004; cubeMesh.rotation.x+=0.002; wire.rotation.y+=0.004; wire.rotation.x+=0.002; }
-        cubeRenderer.render(cubeScene, cubeCam);
-      }
-      animate();
     }
 
-    // ── BACKGROUND THREE.JS (particles) ──
-    function initBgThree() {
-      const canvas = document.getElementById('three-canvas');
-      const scene = new THREE.Scene();
-      const cam = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-      cam.position.z = 30;
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:false });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(1);
-
-      // Particle field
-      const count = 1200;
-      const positions = new Float32Array(count*3);
-      for(let i=0;i<count;i++){
-        positions[i*3]   = (Math.random()-.5)*80;
-        positions[i*3+1] = (Math.random()-.5)*80;
-        positions[i*3+2] = (Math.random()-.5)*60;
-      }
-      const pGeo = new THREE.BufferGeometry();
-      pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      const pMat = new THREE.PointsMaterial({ color:0xd4f53c, size:0.08, transparent:true, opacity:0.35 });
-      const particles = new THREE.Points(pGeo, pMat);
-      scene.add(particles);
-
-      // Moving lines
-      for(let i=0;i<8;i++){
-        const pts=[new THREE.Vector3((Math.random()-.5)*60,(Math.random()-.5)*60,-10),
-                   new THREE.Vector3((Math.random()-.5)*60,(Math.random()-.5)*60,-10)];
-        const lGeo=new THREE.BufferGeometry().setFromPoints(pts);
-        const lMat=new THREE.LineBasicMaterial({color:0xd4f53c,transparent:true,opacity:0.05});
-        scene.add(new THREE.Line(lGeo,lMat));
-      }
-
-      let mouseX=0,mouseY=0;
-      document.addEventListener('mousemove',e=>{mouseX=(e.clientX/window.innerWidth-.5)*2;mouseY=(e.clientY/window.innerHeight-.5)*2;});
-      window.addEventListener('resize',()=>{
-        cam.aspect=window.innerWidth/window.innerHeight;cam.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth,window.innerHeight);
-      });
-
-      let t=0;
-      (function bgLoop(){
-        requestAnimationFrame(bgLoop);t+=0.003;
-        particles.rotation.y=t*.08+mouseX*.1;
-        particles.rotation.x=mouseY*.05;
-        pMat.opacity=0.25+Math.sin(t)*0.1;
-        renderer.render(scene,cam);
-      })();
-    }
-
-    // ── LOCOMOTIVE SCROLL + GSAP ──
-    function initScroll() {
-      const scroll = new LocomotiveScroll({
-        el: document.querySelector('[data-scroll-container]'),
-        smooth: true,
-        smoothMobile: false,
-        multiplier: 0.9,
-        lerp: 0.07,
-      });
-
-      scroll.on('scroll', (args) => {
-        // progress bar
-        const pct = (args.scroll.y / (args.limit.y||1)) * 100;
-        document.getElementById('progress').style.width = pct + '%';
-        // navbar
-        const nav = document.getElementById('navbar');
-        if (args.scroll.y > 80) nav.classList.add('scrolled');
-        else nav.classList.remove('scrolled');
-      });
-
-      ScrollTrigger.scrollerProxy('[data-scroll-container]', {
-        scrollTop(v) { return arguments.length ? scroll.scrollTo(v,{duration:0,disableLerp:true}) : scroll.scroll.instance.scroll.y; },
-        getBoundingClientRect() { return {top:0,left:0,width:window.innerWidth,height:window.innerHeight}; },
-        pinType: 'transform',
-      });
-      scroll.on('scroll', ScrollTrigger.update);
-      ScrollTrigger.addEventListener('refresh', () => scroll.update());
-      ScrollTrigger.refresh();
-      return scroll;
-    }
-
-    // ── HERO ANIMATIONS ──
+    // ── HERO ANIMATION ──
     function animHero() {
-      const tl = gsap.timeline({ delay:.2 });
-      tl.to(['#s1','#s2','#s3'], { y:'0%', duration:1.1, ease:'expo.out', stagger:.12 })
-        .to('#hero-eye', { opacity:1, y:0, duration:.7, ease:'power3.out' }, '-=.6')
-        .to('#hero-sub', { opacity:1, y:0, duration:.7, ease:'power3.out' }, '-=.4')
-        .to('#hero-btns',{ opacity:1, y:0, duration:.6, ease:'power3.out' }, '-=.3')
-        .to('#scroll-hint',{ opacity:1, duration:.6 }, '-=.1')
-        .to(['#ft1','#ft2','#ft3'], { opacity:1, duration:.5, stagger:.15, ease:'power2.out' }, '-=.4');
+      gsap.timeline({ delay: .1 })
+        .to('.h-line',  { y: '0%', duration: 1.15, ease: 'expo.out', stagger: .09 })
+        .to('#h-sub',   { opacity: 1, duration: .75, ease: 'power3.out' }, '-=.65')
+        .to('#h-btns',  { opacity: 1, duration: .65, ease: 'power3.out' }, '-=.45')
+        .to('#h-hint',  { opacity: 1, duration: .5  }, '-=.3')
+        .to(['#ft1','#ft2','#ft3'], { opacity: 1, duration: .5, stagger: .13, ease: 'power2.out' }, '-=.4');
+    }
+
+    // ── BG PARTICLES ──
+    function initBg() {
+      const canvas = document.getElementById('bg-canvas');
+      const scene  = new THREE.Scene();
+      const cam    = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 1000);
+      cam.position.z = 30;
+      const ren = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+      ren.setSize(innerWidth, innerHeight);
+      ren.setPixelRatio(1);
+
+      const count = 1400;
+      const pos   = new Float32Array(count * 3);
+      for (let i = 0; i < count; i++) {
+        pos[i*3]   = (Math.random() - .5) * 90;
+        pos[i*3+1] = (Math.random() - .5) * 90;
+        pos[i*3+2] = (Math.random() - .5) * 60;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      const mat = new THREE.PointsMaterial({ color: 0xd4f53c, size: .07, transparent: true, opacity: .28 });
+      const pts = new THREE.Points(geo, mat);
+      scene.add(pts);
+
+      let mx = 0, my = 0;
+      document.addEventListener('mousemove', e => {
+        mx = (e.clientX / innerWidth  - .5) * 2;
+        my = (e.clientY / innerHeight - .5) * 2;
+      });
+      window.addEventListener('resize', () => {
+        cam.aspect = innerWidth / innerHeight;
+        cam.updateProjectionMatrix();
+        ren.setSize(innerWidth, innerHeight);
+      });
+
+      let t = 0;
+      (function bgLoop() {
+        requestAnimationFrame(bgLoop);
+        t += .003;
+        pts.rotation.y = t * .06 + mx * .08;
+        pts.rotation.x = my * .04;
+        mat.opacity = .2 + Math.sin(t) * .08;
+        ren.render(scene, cam);
+      })();
+    }
+
+    // ── FEATURE CARD 3D TILT ──
+    function initCardTilt() {
+      document.querySelectorAll('.feat-card').forEach(card => {
+        const glow = card.querySelector('.feat-glow');
+        card.addEventListener('mousemove', e => {
+          const r  = card.getBoundingClientRect();
+          const x  = e.clientX - r.left;
+          const y  = e.clientY - r.top;
+          const rX = ((y - r.height / 2) / (r.height / 2)) * -9;
+          const rY = ((x - r.width  / 2) / (r.width  / 2)) *  9;
+          gsap.to(card, { rotationX: rX, rotationY: rY, scale: 1.025, transformPerspective: 900, duration: .15, ease: 'none' });
+          if (glow) { glow.style.left = x + 'px'; glow.style.top = y + 'px'; glow.style.opacity = '1'; }
+        });
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, { rotationX: 0, rotationY: 0, scale: 1, duration: .55, ease: 'power2.out' });
+          if (glow) glow.style.opacity = '0';
+        });
+      });
+    }
+
+    // ── SHOWCASE HEIGHT ──
+    function initShowcase() {
+      const el = document.getElementById('showcase');
+      if (el) el.style.height = (slides.length * 100) + 'vh';
     }
 
     // ── HORIZONTAL DRAG ──
-    function initHorizDrag() {
-      const el = document.getElementById('horiz-scroll');
+    function initHDrag() {
+      const el = document.getElementById('h-scroller');
       if (!el) return;
-      let isDown=false, startX=0, scrollLeft=0;
-      el.addEventListener('mousedown', e=>{isDown=true;startX=e.pageX-el.offsetLeft;scrollLeft=el.scrollLeft;el.style.cursor='grabbing';});
-      window.addEventListener('mouseup', ()=>{isDown=false;el.style.cursor='default';});
-      el.addEventListener('mousemove', e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-el.offsetLeft;el.scrollLeft=scrollLeft-(x-startX)*1.5;});
+      let down = false, sx = 0, sl = 0;
+      el.addEventListener('mousedown', e => { down = true; sx = e.pageX - el.offsetLeft; sl = el.scrollLeft; });
+      window.addEventListener('mouseup', () => down = false);
+      el.addEventListener('mousemove', e => {
+        if (!down) return;
+        e.preventDefault();
+        el.scrollLeft = sl - (e.pageX - el.offsetLeft - sx) * 1.5;
+      });
     }
 
-    onMounted(() => {
-      updateTimer(); setInterval(updateTimer, 1000);
-      initCursor();
-      initBgThree();
-      initCube();
-      animHero();
-      initHorizDrag();
-      setTimeout(initScroll, 200);
-    });
+    // ── LOCOMOTIVE SCROLL ──
+    function initScroll() {
+      const showcaseEl    = document.getElementById('showcase');
+      const showcaseTop   = showcaseEl ? showcaseEl.offsetTop : 0;
+      const showcaseH     = showcaseEl ? showcaseEl.offsetHeight : 0;
 
-    watch(activeCubeColor, (col) => {
-      if (cubeMesh) {
-        gsap.to(cubeMesh.material.color, { r:((col.three>>16)&255)/255, g:((col.three>>8)&255)/255, b:(col.three&255)/255, duration:.6 });
-      }
+      const loco = new LocomotiveScroll({
+        el: document.querySelector('[data-scroll-container]'),
+        smooth: true, multiplier: .85, lerp: .07,
+      });
+
+      loco.on('scroll', ({ scroll, limit }) => {
+        // progress bar
+        document.getElementById('progress').style.width = ((scroll.y / (limit.y || 1)) * 100) + '%';
+
+        // nav
+        const nav = document.getElementById('nav');
+        scroll.y > 60 ? nav.classList.add('scrolled') : nav.classList.remove('scrolled');
+
+        // showcase
+        const sHeight = showcaseH - innerHeight;
+        if (sHeight > 0) {
+          const progress  = Math.max(0, Math.min(1, (scroll.y - showcaseTop) / sHeight));
+          activeSlide.value = Math.min(Math.round(progress * (slides.length - 1)), slides.length - 1);
+          const offsetPx    = progress * (slides.length - 1) * innerWidth;
+          const slidesEl    = document.getElementById('showcase-slides');
+          if (slidesEl) gsap.to(slidesEl, { x: -offsetPx, duration: .6, ease: 'power2.out', overwrite: true });
+        }
+      });
+
+      ScrollTrigger.scrollerProxy('[data-scroll-container]', {
+        scrollTop(v) {
+          return arguments.length
+            ? loco.scrollTo(v, { duration: 0, disableLerp: true })
+            : loco.scroll.instance.scroll.y;
+        },
+        getBoundingClientRect() {
+          return { top: 0, left: 0, width: innerWidth, height: innerHeight };
+        },
+        pinType: 'transform',
+      });
+      loco.on('scroll', ScrollTrigger.update);
+      ScrollTrigger.addEventListener('refresh', () => loco.update());
+      ScrollTrigger.refresh();
+    }
+
+    onMounted(async () => {
+      tickTimer();
+      setInterval(tickTimer, 1000);
+      initCursor();
+      initBg();
+      initShowcase();
+      await runPreloader();
+      animHero();
+      initCardTilt();
+      initHDrag();
+      setTimeout(initScroll, 200);
     });
 
     return {
       navLinks, marqueeItems, marqueeItems2,
-      activeFilter, filters, filteredProducts,
-      activeCubeColor, cubeColors,
+      features, stats,
+      slides, activeSlide,
+      filters, activeFilter, filteredProds,
       lookbook, testimonials,
-      timerUnits, nlPerks, footerCols,
-      onProdHover, onProdLeave,
+      timer, nlPerks, footerCols,
+      onCursorEnter, onCursorLeave,
     };
   }
 }).mount('#app');
